@@ -45,7 +45,7 @@ public class VideoController {
             String videoPath = saveFile(videoFile, taskId, "video");
             String voicePath = saveFile(voiceSampleFile, taskId, "voice");
 
-            orchestrationService.run(videoPath, voicePath);
+            orchestrationService.performVoiceSwap(taskId, videoPath, voicePath);
 
             TaskResponseDTO taskResponseDTO = buildTaskResponseDTO(taskId);
             return ResponseEntity.accepted().body(taskResponseDTO);
