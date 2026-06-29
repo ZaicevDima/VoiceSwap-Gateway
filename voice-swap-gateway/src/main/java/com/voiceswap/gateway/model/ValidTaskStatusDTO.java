@@ -4,8 +4,7 @@ import java.util.UUID;
 
 public record ValidTaskStatusDTO(
         UUID taskId,
-        String status,
+        TaskStatus status,
         String progress,
-        String resultUrl,
-        String errorMessage
+        String resultUrl
 ) implements TaskStatusDTO {}
