@@ -3,7 +3,6 @@ package com.voiceswap.gateway.model;
 import com.voiceswap.gateway.exceptions.UnsupportedVideoFormat;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
