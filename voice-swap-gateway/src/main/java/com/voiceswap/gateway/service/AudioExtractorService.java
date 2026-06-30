@@ -88,15 +88,8 @@ public class AudioExtractorService {
             throw new IllegalArgumentException("Video path mustn't be null or empty");
         }
 
-        String lowerPath = videoPath.toLowerCase();
-
-        String extension  = VideoFormat.getAllVideoFormats().stream()
-                .filter(lowerPath::endsWith)
-                .findFirst()
-                .orElseThrow(() -> new UnsupportedVideoFormat(
-                        String.format("Unsupported video format: '%s'. Supported: %s",
-                                videoPath, VideoFormat.getAllVideoFormats())
-                ));
+        VideoFormat videoFormat = VideoFormat.getFormatByPath(videoPath);
+        String extension = videoFormat.extension();
 
         String basePath = videoPath.substring(0, videoPath.length() - extension.length());
         String audioPath = basePath + '.' + targetFormat;
