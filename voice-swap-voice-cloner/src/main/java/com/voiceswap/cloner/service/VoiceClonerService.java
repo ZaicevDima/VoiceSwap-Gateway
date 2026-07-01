@@ -1,8 +1,8 @@
-package com.voiceswap.gateway.service;
+package com.voiceswap.cloner.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.voiceswap.gateway.exceptions.VoiceCloneException;
+import com.voiceswap.cloner.exceptions.VoiceCloneException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class VoiceClonerService {
@@ -21,13 +22,34 @@ public class VoiceClonerService {
     private static final Logger log = LoggerFactory.getLogger(VoiceClonerService.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${voice-cloner.python-path:python3}")
+    @Value("${voice-cloner.python-path}")
     private String pythonPath;
 
     @Value("${voice-cloner.script-path:scripts/clone_voice.py}")
     private String scriptPath;
 
+    @Value("${file.storage.temp-dir:E:/VoiceSwapTemp/}")
+    private String tempDir;
+
     public String cloneVoice(String transcribedText, String voiceSamplePath) {
+        try {
+
+            new File(tempDir).mkdirs();
+
+            String outputPath = tempDir + "cloned_" + System.currentTimeMillis() + ".wav";
+
+            Files.copy(Path.of(voiceSamplePath), Path.of(outputPath), StandardCopyOption.REPLACE_EXISTING);
+
+            log.info("✅ Voice copied (temporary) to: {}", outputPath);
+            return outputPath;
+        } catch (IOException e) {
+            log.error("❌ Failed to clone voice: {}", e.getMessage());
+            throw new RuntimeException("Failed to clone voice", e);
+        }
+    }
+
+
+    public String cloneVoice2(String transcribedText, String voiceSamplePath) {
         if (transcribedText == null || transcribedText.isBlank()) {
             throw new IllegalArgumentException("Text cannot be null or empty");
         }
@@ -39,8 +61,9 @@ public class VoiceClonerService {
 
         Path tempAudio = null;
         try {
-            tempAudio = Files.createTempFile("cloned_", ".wav");
-            String outputPath = tempAudio.toString();
+            new File(tempDir).mkdirs();
+
+            String outputPath = tempDir + "cloned_" + System.currentTimeMillis() + ".wav";
 
             log.info("🎤 Cloning voice for text: '{}'", transcribedText);
 
@@ -104,6 +127,12 @@ public class VoiceClonerService {
     private Process buildCloningPythonProcess(String transcribedText,
                                               String voiceSamplePath,
                                               String outputPath) throws IOException {
+        log.info("Python path: {}", pythonPath);
+        log.info("Script path: {}", scriptPath);
+        log.info("Text: {}", transcribedText);
+        log.info("Voice sample: {}", voiceSamplePath);
+        log.info("Output: {}", outputPath);
+
         ProcessBuilder pb = new ProcessBuilder(
                 pythonPath,
                 scriptPath,

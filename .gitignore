@@ -46,6 +46,7 @@ venv/
 
 # target
 target/
+voice-swap-gateway/target
 
 # cache
 .cache/

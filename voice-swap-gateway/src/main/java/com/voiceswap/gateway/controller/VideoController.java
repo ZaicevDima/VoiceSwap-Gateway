@@ -7,6 +7,7 @@ import com.voiceswap.gateway.service.OrchestrationService;
 import com.voiceswap.gateway.service.TaskStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,9 @@ public class VideoController {
 
     private final OrchestrationService orchestrationService;
     private final TaskStatusService taskStatusService;
+
+    @Value("${file.storage.temp-dir:E:/VoiceSwapTemp/}")
+    private String tempDir;
 
     public VideoController(OrchestrationService orchestrationService, TaskStatusService taskStatusService) {
         this.orchestrationService = orchestrationService;
@@ -102,13 +106,7 @@ public class VideoController {
     }
 
     private String saveFile(MultipartFile file, UUID taskId, String fileType) throws IOException {
-        String tempDir = System.getProperty("java.io.tmpdir").replace("\\", "/");
-        if (tempDir.endsWith("/")) {
-            tempDir = tempDir.substring(0, tempDir.length() - 1);
-        }
-        tempDir += "/voiceswap/";
-
-
+        //String tempDir = System.getProperty("java.io.tmpdir").replace("\\", "/");
         File directory = new File(tempDir);
         if (!directory.exists()) {
             directory.mkdirs();

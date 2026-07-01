@@ -26,6 +26,9 @@ public class VideoMuxerService {
     @Value("${video.muxer.audio-codec}")
     private String audioCodec;
 
+    @Value("${file.storage.temp-dir:E:/VoiceSwapTemp/}")
+    private String tempDir;
+
     public String mux(String videoPath, String audioPath) {
         log.info("🎬 Muxing video: {} with audio: {}", videoPath, audioPath);
 
@@ -105,6 +108,7 @@ public class VideoMuxerService {
 
         return new ProcessBuilder(
                 ffmpegPath,                    // 1. Программа
+                //                "-stream_loop", "-1",
                 "-i", normalizedVideo,             // 2-3. Входной видеофайл
                 "-i", normalizedAudio,             // 4-5. Входной аудиофайл
                 "-c:v", videoCodec,              // 6-7. Копировать видео (без перекодирования)
@@ -123,12 +127,14 @@ public class VideoMuxerService {
     }
 
     private String buildOutputPath(String videoPath) {
-        String normalizedPath = videoPath.replace("\\", "/");
+        String fileName = new File(videoPath).getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        String baseName = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
 
-        int dotIndex = videoPath.lastIndexOf('.');
-        if (dotIndex > 0) {
-            return videoPath.substring(0, dotIndex) + "_output." + outputFormat;
-        }
-        return videoPath + "_output." + outputFormat;
+        String outputPath = tempDir + baseName + "_output." + outputFormat;
+
+        new File(tempDir).mkdirs();
+
+        return outputPath;
     }
 }

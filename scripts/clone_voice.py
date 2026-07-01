@@ -1,8 +1,12 @@
-import tts_patch
 import sys
-import json
 import os
+sys.path.insert(0, os.path.dirname(__file__))
+
+import tts_patch
+import json
 import argparse
+import tempfile
+tempfile.tempdir = "E:/VoiceSwapTemp/"
 
 os.environ["HF_HOME"] = os.path.join(os.getcwd(), ".cache")
 
