@@ -110,7 +110,8 @@ public class VoiceClonerService {
                 "--text", transcribedText,
                 "--voice-sample", voiceSamplePath,
                 "--output", outputPath,
-                "--speaker", "ru_speaker_1"
+                "--speaker", "ru_speaker_1",
+                "--skip-license-check"
         );
 
         pb.redirectErrorStream(true);
