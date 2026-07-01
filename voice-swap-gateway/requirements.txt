@@ -1,3 +1,0 @@
-# requirements.txt
-speechcraft
-media-toolkit

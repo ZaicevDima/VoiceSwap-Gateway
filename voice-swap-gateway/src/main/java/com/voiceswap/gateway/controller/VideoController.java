@@ -102,7 +102,13 @@ public class VideoController {
     }
 
     private String saveFile(MultipartFile file, UUID taskId, String fileType) throws IOException {
-        String tempDir = System.getProperty("java.io.tmpdir") + "/voiceswap/";
+        String tempDir = System.getProperty("java.io.tmpdir").replace("\\", "/");
+        if (tempDir.endsWith("/")) {
+            tempDir = tempDir.substring(0, tempDir.length() - 1);
+        }
+        tempDir += "/voiceswap/";
+
+
         File directory = new File(tempDir);
         if (!directory.exists()) {
             directory.mkdirs();

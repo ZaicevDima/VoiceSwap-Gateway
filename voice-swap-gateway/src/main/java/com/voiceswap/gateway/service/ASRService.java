@@ -51,6 +51,11 @@ public class ASRService {
     public String transcribe(String audioPath) {
         validateFile(audioPath);
 
+//        String transcribedText = "Привет, это тестовый текст для проверки клонирования голоса. Если вы это слышите, значит система работает правильно.";//extractTextFromResult(finalResult);
+//        log.info("Распознанный текст: {}", transcribedText);
+//
+//        return transcribedText;
+
         try (InputStream audioStream = new FileInputStream(audioPath);
              Recognizer recognizer = new Recognizer(model, sampleRate)) {
             log.info("Начинаем распознавание: {}", audioPath);

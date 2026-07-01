@@ -36,6 +36,19 @@ venv/
 # IDEA
 .idea/
 *.iml
+*.xml
 *.iws
 *.ipr
 .DS_Store
+
+.idea/
+
+
+# target
+target/
+
+# cache
+.cache/
+
+# example
+example/
