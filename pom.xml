@@ -14,6 +14,7 @@
     <description>Parent project for VoiceSwap microservices</description>
     <modules>
         <module>voice-swap-gateway</module>
+        <module>voice-swap-voice-cloner</module>
     </modules>
 
     <parent>

@@ -1,12 +1,13 @@
 package com.voiceswap.gateway.service;
 
-import com.voiceswap.gateway.model.InvalidTaskStatusDTO;
-import com.voiceswap.gateway.model.TaskStatusDTO;
-import com.voiceswap.gateway.model.ValidTaskStatusDTO;
+import com.voiceswap.gateway.exceptions.VoiceCloneException;
+import com.voiceswap.gateway.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.UUID;
 
@@ -17,22 +18,24 @@ public class OrchestrationService {
 
     Logger log = LoggerFactory.getLogger(OrchestrationService.class);
 
+    @Value("${services.voice-cloner.url}")
+    private String voiceClonerUrl;
+
     private final TaskStatusService taskStatusService;
     private final AudioExtractorService audioExtractor;
-    private final ASRService asrService;                  // TODO
-    private final VoiceClonerService voiceCloner;         // TODO
-    private final VideoMuxerService videoMuxer;           // TODO
+    private final ASRService asrService;
+    private final VideoMuxerService videoMuxer;
+    private final WebClient webClient;
 
     public OrchestrationService(TaskStatusService taskStatusService,
                                 AudioExtractorService audioExtractor,
                                 ASRService asrService,
-                                VoiceClonerService voiceCloner,
                                 VideoMuxerService videoMuxer) {
         this.taskStatusService = taskStatusService;
         this.audioExtractor = audioExtractor;
         this.asrService = asrService;
-        this.voiceCloner = voiceCloner;
         this.videoMuxer = videoMuxer;
+        this.webClient = WebClient.builder().build();
     }
 
     @Async
@@ -58,7 +61,7 @@ public class OrchestrationService {
             log.info("✅ Audio transcribe for task: {}", taskId);
 
             // Клонируем голос и синтезируем речь
-            String newAudioPath = voiceCloner.cloneVoice(transcribedText, voiceSamplePath);
+            String newAudioPath = cloneVoice(transcribedText, voiceSamplePath); //voiceCloner.cloneVoice(transcribedText, voiceSamplePath);
             taskStatus = new ValidTaskStatusDTO(taskId, PROCESSING, "75%", null);
             taskStatusService.updateStatus(taskStatus);
             log.info("✅ Voice clone for task: {}", taskId);
@@ -81,5 +84,22 @@ public class OrchestrationService {
             taskStatus = new InvalidTaskStatusDTO(taskId, exception.getMessage());
             taskStatusService.updateStatus(taskStatus);
         }
+    }
+
+    private String cloneVoice(String transcribedText, String voiceSamplePath) {
+        CloneRequest request = new CloneRequest(transcribedText, voiceSamplePath);
+        CloneResponse response = webClient.post()
+                .uri(voiceClonerUrl + "/api/v1/clone")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(CloneResponse.class)
+                .block();
+
+        if (response == null || !"SUCCESS".equals(response.status())) {
+            String errorMsg = response != null ? response.errorMessage() : "No response from voice cloner service";
+            throw new VoiceCloneException("Voice cloning failed: " + errorMsg);
+        }
+
+        return response.outputPath();
     }
 }
