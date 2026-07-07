@@ -37,6 +37,7 @@ public class VoiceClonerController {
     public CloneResponse cloneVoice(@RequestBody CloneRequest request) {
         Objects.requireNonNull(request, "request mustn't be null");
         log.info("endpoint clone voice catch request");
+        log.info("Received request: text={}, voiceSamplePath={}", request.transcribedText(), request.voiceSamplePath());
         try {
             String originalText = request.transcribedText();
             String voiceSamplePath = request.voiceSamplePath();
