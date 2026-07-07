@@ -15,6 +15,7 @@
     <modules>
         <module>voice-swap-gateway</module>
         <module>voice-swap-voice-cloner</module>
+        <module>voice-bank</module>
     </modules>
 
     <parent>
